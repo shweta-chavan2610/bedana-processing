@@ -1,16 +1,32 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import ProductsSection from "@/components/ProductsSection";
+import GallerySection from "@/components/GallerySection";
+import InterestForm from "@/components/InterestForm";
+import { useMostPopular } from "@/hooks/useMostPopular";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
+  const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
+  const { data: mostPopular } = useMostPopular();
+
+  const handleProductClick = (name: string) => {
+    setSelectedProduct(name);
+    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
+    <div className="min-h-screen">
+      <Navbar />
+      <HeroSection />
+      <ProductsSection onProductClick={handleProductClick} mostPopular={mostPopular ?? null} />
+      <GallerySection />
+      <InterestForm prefilledProduct={selectedProduct} />
+      <footer className="py-8 text-center text-sm text-muted-foreground font-body border-t">
+        © 2026 Riddhi Siddhi. All rights reserved.
+      </footer>
     </div>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
