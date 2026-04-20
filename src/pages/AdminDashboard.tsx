@@ -4,8 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { LogOut, Plus, Trash2, Edit2, Users, Eye, TrendingUp, ArrowLeft } from "lucide-react";
+import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { Tables } from "@/integrations/supabase/types";
-
 type Product = Tables<"products">;
 
 const AdminDashboard = () => {
@@ -61,6 +61,12 @@ const AdminDashboard = () => {
 
   const mostPopular = Object.entries(viewCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "N/A";
 
+  const chartData = Object.entries(viewCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, count]) => ({ name, count }));
+
+  const COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
+
   const uploadImage = async (file: File): Promise<string> => {
     const ext = file.name.split(".").pop();
     const path = `${Date.now()}.${ext}`;
@@ -72,11 +78,22 @@ const AdminDashboard = () => {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
+      const numericPrice = parseFloat(form.price);
+      if (isNaN(numericPrice) || numericPrice <= 0) {
+        toast.error("Price must be greater than 0");
+        throw new Error("Invalid price");
+      }
+      
+      if (!form.name.trim()) {
+        toast.error("Product name is required");
+        throw new Error("Missing name");
+      }
+
       let imageUrl = form.image_url;
       if (imageFile) {
         imageUrl = await uploadImage(imageFile);
       }
-      const payload = { name: form.name, price: parseFloat(form.price), description: form.description, image_url: imageUrl || null };
+      const payload = { name: form.name, price: numericPrice, description: form.description, image_url: imageUrl || null };
       if (editingId) {
         const { error } = await supabase.from("products").update(payload).eq("id", editingId);
         if (error) throw error;
@@ -90,7 +107,11 @@ const AdminDashboard = () => {
       toast.success(editingId ? "Product updated" : "Product added");
       resetForm();
     },
-    onError: () => toast.error("Failed to save product"),
+    onError: (error: any) => {
+      if (error.message !== "Invalid price" && error.message !== "Missing name") {
+        toast.error("Failed to save product");
+      }
+    },
   });
 
   const deleteMutation = useMutation({
@@ -236,7 +257,7 @@ const AdminDashboard = () => {
                 <div key={p.id} className="bg-card rounded-lg p-4 shadow-card flex items-center gap-4">
                   <div className="w-16 h-16 rounded-md bg-muted overflow-hidden flex-shrink-0">
                     {p.image_url ? (
-                      <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
+                      <img src={p.image_url} alt={p.name} className="w-full h-full object-contain" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">No img</div>
                     )}
@@ -307,27 +328,33 @@ const AdminDashboard = () => {
               </div>
             </div>
             <h3 className="font-display text-lg font-semibold mb-3">Clicks Per Product</h3>
-            <div className="space-y-2">
-              {Object.entries(viewCounts)
-                .sort((a, b) => b[1] - a[1])
-                .map(([name, count]) => (
-                  <div key={name} className="bg-card rounded-lg p-4 shadow-card flex items-center justify-between">
-                    <span className="font-body font-medium text-sm">{name}</span>
-                    <div className="flex items-center gap-3">
-                      <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary rounded-full transition-all"
-                          style={{ width: `${(count / views.length) * 100}%` }}
-                        />
-                      </div>
-                      <span className="text-sm font-body font-bold text-primary w-8 text-right">{count}</span>
-                    </div>
-                  </div>
-                ))}
-              {Object.keys(viewCounts).length === 0 && (
-                <p className="text-muted-foreground font-body text-sm">No views tracked yet.</p>
-              )}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 bg-card p-4 rounded-lg shadow-card">
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ left: -25, right: 10 }}>
+                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: 'currentColor' }} axisLine={{ stroke: 'hsl(var(--muted))' }} />
+                    <YAxis tick={{ fontSize: 12, fill: 'currentColor' }} axisLine={{ stroke: 'hsl(var(--muted))' }} allowDecimals={false} />
+                    <Tooltip cursor={{ fill: 'hsl(var(--muted))' }} contentStyle={{ backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--card-foreground))', borderRadius: '8px', border: '1px solid hsl(var(--border))', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                    <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="h-64 flex items-center justify-center">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={chartData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="count">
+                      {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--card-foreground))', borderRadius: '8px', border: '1px solid hsl(var(--border))', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </div>
+            {chartData.length === 0 && (
+              <p className="text-muted-foreground font-body text-sm mt-4">No views tracked yet.</p>
+            )}
           </div>
         )}
       </div>

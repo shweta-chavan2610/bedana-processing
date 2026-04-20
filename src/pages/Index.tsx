@@ -6,7 +6,10 @@ import GallerySection from "@/components/GallerySection";
 import InterestForm from "@/components/InterestForm";
 import { useMostPopular } from "@/hooks/useMostPopular";
 
+import { useLanguage } from "@/hooks/useLanguage";
+
 const Index = () => {
+  const { t } = useLanguage();
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const { data: mostPopular } = useMostPopular();
 
@@ -23,7 +26,7 @@ const Index = () => {
       <GallerySection />
       <InterestForm prefilledProduct={selectedProduct} />
       <footer className="py-8 text-center text-sm text-muted-foreground font-body border-t">
-        © 2026 Riddhi Siddhi. All rights reserved.
+        {t("footer_rights")}
       </footer>
     </div>
   );

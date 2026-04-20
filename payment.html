@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Payment - Riddhi Siddhi</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6b4caf;
+            --primary-light: #f3f0fa;
+            --text-dark: #1a1a2e;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --shadow: 0 10px 25px -5px rgba(107, 76, 175, 0.1), 0 8px 10px -6px rgba(107, 76, 175, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .payment-card {
+            background: var(--white);
+            width: 100%;
+            max-width: 400px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 32px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: var(--text-dark);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .qr-container {
+            background: var(--primary-light);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+
+        .qr-placeholder {
+            width: 200px;
+            height: 200px;
+            background: white;
+            margin: 0 auto;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .qr-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .amount-display {
+            margin-top: 16px;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .upi-box {
+            background: #f1f5f9;
+            padding: 12px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            border: 1px dashed #cbd5e1;
+        }
+
+        .upi-id {
+            font-size: 14px;
+            color: var(--text-dark);
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .primary-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 4px 12px rgba(107, 76, 175, 0.2);
+        }
+
+        .primary-btn:hover {
+            background: #5a3f96;
+            transform: translateY(-2px);
+        }
+
+        .primary-btn:active {
+            transform: translateY(0);
+        }
+
+        .warning-text {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal {
+            background: white;
+            padding: 32px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 340px;
+            text-align: center;
+            animation: modalIn 0.3s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; scale: 0.9; }
+            to { opacity: 1; scale: 1; }
+        }
+
+        .modal h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .modal input:focus {
+            border-color: var(--primary);
+        }
+
+        .confirm-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            margin-top: 12px;
+            color: var(--text-muted);
+            font-size: 13px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="payment-card">
+        <h1>Complete Your Payment</h1>
+        <p class="subtitle">Takes less than 10 seconds to confirm</p>
+
+        <div class="qr-container">
+            <div class="qr-placeholder">
+                <!-- Replace with actual QR image -->
+                <img src="/qr-code.png" alt="Scan to Pay" id="qrImage">
+            </div>
+            <div class="amount-display" id="finalAmount">₹0.00</div>
+        </div>
+
+        <div class="upi-box">
+            <span class="upi-id" id="upiId">shwetachavan2610@okicici</span>
+            <button class="copy-btn" onclick="copyUPI()">Copy</button>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <input type="text" id="userName" placeholder="Your Name (Optional)" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none;">
+        </div>
+
+        <button class="primary-btn" onclick="openModal()">I Have Paid ✔</button>
+
+        <p class="warning-text">Orders are verified before confirmation</p>
+        <p class="footer-text">Powered by Riddhi Siddhi Payment Verification</p>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h2>Payment Verification</h2>
+            <p class="subtitle">Enter last 4 digits of your transaction ID</p>
+            <input type="text" id="txnId" maxlength="4" placeholder="XXXX" inputmode="numeric">
+            <button class="confirm-btn" onclick="confirmPayment()">Confirm Payment</button>
+            <button class="cancel-btn" onclick="closeModal()">Back</button>
+        </div>
+    </div>
+
+    <script>
+        // Get amount from URL parameter (e.g., payment.html?amount=500)
+        const urlParams = new URLSearchParams(window.location.search);
+        const amount = urlParams.get('amount') || "0.00";
+        document.getElementById('finalAmount').innerText = "₹" + amount;
+
+        function copyUPI() {
+            const upiId = document.getElementById('upiId').innerText;
+            navigator.clipboard.writeText(upiId).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.innerText;
+                btn.innerText = "Copied!";
+                btn.style.background = "var(--primary)";
+                btn.style.color = "white";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "none";
+                    btn.style.color = "var(--primary)";
+                }, 2000);
+            });
+        }
+
+        function openModal() {
+            document.getElementById('modalOverlay').style.display = 'flex';
+            document.getElementById('txnId').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+
+        function confirmPayment() {
+            const txnId = document.getElementById('txnId').value;
+            const name = document.getElementById('userName').value || "Customer";
+            
+            if (txnId.length !== 4) {
+                alert("Please enter the last 4 digits of your transaction ID.");
+                return;
+            }
+
+            const message = `Hello,
+I have completed the payment.
+
+Name: ${name}
+Amount: ₹${amount}
+Last 4 digits: ${txnId}
+
+Please confirm my order.`;
+
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/917822048308?text=${encodedMessage}`;
+            
+            window.location.href = whatsappUrl;
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const overlay = document.getElementById('modalOverlay');
+            if (event.target == overlay) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
