@@ -14,7 +14,6 @@ const Navbar = () => {
     { label: t("nav_products"), href: "#products" },
     { label: t("nav_gallery"), href: "#gallery" },
     { label: t("nav_contact"), href: "#contact" },
-    { label: t("nav_payment"), href: "/payment", isRoute: true },
   ];
 
   if (isAdmin) return null;
